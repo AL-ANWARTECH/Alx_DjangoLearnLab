@@ -3,16 +3,15 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.views.generic.detail import DetailView
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib import messages
 from .models import Book, Library, UserProfile
 
-# Function-Based View for Listing all Books
+# ====== Book and Library Views ======
 
 
 def list_books(request):
     books = Book.objects.all()
     return render(request, 'relationship_app/list_books.html', {'books': books})
-
-# Class-Based View for Library Details
 
 
 class LibraryDetailView(DetailView):
@@ -20,8 +19,8 @@ class LibraryDetailView(DetailView):
     template_name = 'relationship_app/library_detail.html'
     context_object_name = 'library'
 
-# Login View
 
+# ====== Authentication Views ======
 
 def login_view(request):
     if request.method == "POST":
@@ -34,14 +33,10 @@ def login_view(request):
         form = AuthenticationForm()
     return render(request, "relationship_app/login.html", {"form": form})
 
-# Logout View
-
 
 def logout_view(request):
     logout(request)
-    return render(request, "relationship_app/logout.html")
-
-# Registration View
+    return redirect("login")
 
 
 def register_view(request):
@@ -50,46 +45,43 @@ def register_view(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            # Redirect to books list after registration
-            return redirect("list_books")
+            return redirect("list_books")  # Redirect after registration
     else:
         form = UserCreationForm()
     return render(request, "relationship_app/register.html", {"form": form})
 
-# Role check functions
+
+# ====== Role-Based Access Control ======
+
+def has_role(user, role):
+    """Check if the user has the given role."""
+    return user.is_authenticated and hasattr(user, 'userprofile') and user.userprofile.role == role
 
 
-def is_admin(user):
-    return user.is_authenticated and hasattr(user, 'userprofile') and user.userprofile.role == "Admin"
-
-
-def is_librarian(user):
-    return user.is_authenticated and hasattr(user, 'userprofile') and user.userprofile.role == "Librarian"
-
-
-def is_member(user):
-    return user.is_authenticated and hasattr(user, 'userprofile') and user.userprofile.role == "Member"
-
-# Admin View
+def role_check(role):
+    """Decorator function for checking user roles."""
+    def check(user):
+        if not has_role(user, role):
+            messages.error(
+                user, f"You do not have permission to access the {role} dashboard.")
+            return False
+        return True
+    return check
 
 
 @login_required
-@user_passes_test(is_admin)
+@user_passes_test(role_check("Admin"), login_url="login")
 def admin_view(request):
     return render(request, "relationship_app/admin_view.html")
 
-# Librarian View
-
 
 @login_required
-@user_passes_test(is_librarian)
+@user_passes_test(role_check("Librarian"), login_url="login")
 def librarian_view(request):
     return render(request, "relationship_app/librarian_view.html")
 
-# Member View
-
 
 @login_required
-@user_passes_test(is_member)
+@user_passes_test(role_check("Member"), login_url="login")
 def member_view(request):
     return render(request, "relationship_app/member_view.html")

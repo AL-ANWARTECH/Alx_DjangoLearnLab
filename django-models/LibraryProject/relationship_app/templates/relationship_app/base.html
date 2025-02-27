@@ -52,6 +52,13 @@
     <!-- Child templates will insert content here -->
     {% endblock %}
 </main>
+{% if messages %}
+    <ul>
+        {% for message in messages %}
+            <li style="color: red;">{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
 
 </body>
 </html>
