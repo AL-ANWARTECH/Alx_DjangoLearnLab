@@ -58,29 +58,29 @@ def has_role(user, role):
     return user.is_authenticated and hasattr(user, "userprofile") and user.userprofile.role == role
 
 
-def role_check(role):
-    """Returns a function to check if a user has a specific role."""
-    return lambda user: has_role(user, role)
+def role_required(role):
+    """Decorator to enforce role-based access."""
+    def decorator(view_func):
+        def wrapper(request, *args, **kwargs):
+            if not has_role(request.user, role):
+                messages.error(
+                    request, f"You do not have permission to access the {role} dashboard.")
+                return redirect("login")
+            return view_func(request, *args, **kwargs)
+        return login_required(wrapper, login_url="login")
+    return decorator
 
 
-@login_required(login_url="login")
-@user_passes_test(role_check("Admin"), login_url="login")
+@role_required("Admin")
 def admin_view(request):
     return render(request, "relationship_app/admin_view.html")
 
 
-@login_required(login_url="login")
-@user_passes_test(role_check("Librarian"), login_url="login")
+@role_required("Librarian")
 def librarian_view(request):
     return render(request, "relationship_app/librarian_view.html")
 
 
-@login_required(login_url="login")
-@user_passes_test(role_check("Member"), login_url="login")
+@role_required("Member")
 def member_view(request):
-    if not has_role(request.user, "Member"):
-        messages.error(
-            request, "You do not have permission to access this page.")
-        return redirect("login")
-
     return render(request, "relationship_app/member_view.html")
