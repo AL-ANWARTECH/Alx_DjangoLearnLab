@@ -1,5 +1,6 @@
-from django.shortcuts import render, redirect  # Combined redundant imports
+from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
+# Combined authentication imports
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.views.generic.detail import DetailView
 from .models import Book, Library  # Combined model imports
