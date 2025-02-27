@@ -1,24 +1,22 @@
-from django.shortcuts import render
-from .models import Book
-from django.views.generic.detail import DetailView
-from .models import Library
+from django.shortcuts import render, redirect  # Combined redundant imports
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
-from django.shortcuts import render, redirect
-from django.contrib.auth.forms import UserCreationForm
-# Create your views here.
+from django.views.generic.detail import DetailView
+from .models import Book, Library  # Combined model imports
 
-# Function Base View For Listing all books
+# Function-Based View for Listing all Books
 
 
 def list_books(request):
     books = Book.objects.all()
     return render(request, 'relationship_app/list_books.html', {'books': books})
 
+# Class-Based View for Library Details
+
 
 class LibraryDetailView(DetailView):
     model = Library
-    template_name = 'relationship_app/library_detail.html'  # Corrected template path
+    template_name = 'relationship_app/library_detail.html'
     context_object_name = 'library'
 
 # Login View
