@@ -1,11 +1,15 @@
 {% extends "relationship_app/base.html" %}
 
-{% block content %}
-<h2>Member Dashboard</h2>
-<p>Welcome, {{ user.username }}! You can browse available books.</p>
+{% block title %}Member Dashboard{% endblock %}
 
-<ul>
-    <li><a href="{% url 'list_books' %}">Browse Books</a></li>
-    <li><a href="{% url 'logout' %}">Logout</a></li>
-</ul>
+{% block content %}
+<section>
+    <h2>Member Dashboard</h2>
+    <p>Welcome, {{ user.username }}! You can browse available books.</p>
+
+    <nav>
+        <a href="{% url 'list_books' %}">📚 Browse Books</a> |
+        <a href="{% url 'logout' %}">🚪 Logout</a>
+    </nav>
+</section>
 {% endblock %}

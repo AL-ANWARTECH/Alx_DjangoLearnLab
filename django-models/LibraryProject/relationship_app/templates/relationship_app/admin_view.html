@@ -1,11 +1,15 @@
 {% extends "relationship_app/base.html" %}
 
-{% block content %}
-<h2>Admin Dashboard</h2>
-<p>Welcome, {{ user.username }}! You have administrator privileges.</p>
+{% block title %}Admin Dashboard{% endblock %}
 
-<ul>
-    <li><a href="{% url 'list_books' %}">View All Books</a></li>
-    <li><a href="{% url 'logout' %}">Logout</a></li>
-</ul>
+{% block content %}
+<section>
+    <h2>Admin Dashboard</h2>
+    <p>Welcome, {{ user.username }}! You have administrator privileges.</p>
+
+    <nav>
+        <a href="{% url 'list_books' %}">📚 View All Books</a> |
+        <a href="{% url 'logout' %}">🚪 Logout</a>
+    </nav>
+</section>
 {% endblock %}
