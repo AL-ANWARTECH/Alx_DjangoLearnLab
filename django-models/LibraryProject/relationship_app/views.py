@@ -19,7 +19,6 @@ class LibraryDetailView(DetailView):
     template_name = "relationship_app/library_detail.html"
     context_object_name = "library"
 
-
 # ====== Authentication Views ======
 
 
@@ -51,7 +50,6 @@ def register_view(request):
         form = UserCreationForm()
     return render(request, "relationship_app/register.html", {"form": form})
 
-
 # ====== Role-Based Access Control ======
 
 
@@ -62,11 +60,7 @@ def has_role(user, role):
 
 def role_check(role):
     """Returns a function to check if a user has a specific role."""
-
-    def check(user):
-        return has_role(user, role)
-
-    return check
+    return lambda user: has_role(user, role)
 
 
 @login_required(login_url="login")
@@ -84,4 +78,9 @@ def librarian_view(request):
 @login_required(login_url="login")
 @user_passes_test(role_check("Member"), login_url="login")
 def member_view(request):
+    if not has_role(request.user, "Member"):
+        messages.error(
+            request, "You do not have permission to access this page.")
+        return redirect("login")
+
     return render(request, "relationship_app/member_view.html")
