@@ -82,6 +82,6 @@ def librarian_view(request):
 
 
 @login_required
-@user_passes_test(role_check("Member"), login_url="login")
+@user_passes_test(lambda user: role_check(user, "Member"), login_url="login")
 def member_view(request):
     return render(request, "relationship_app/member_view.html")
