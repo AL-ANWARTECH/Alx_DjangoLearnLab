@@ -5,6 +5,7 @@ from django.views.generic.detail import DetailView
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib import messages
 from .models import Book, Library, UserProfile
+from django.contrib.auth.decorators import permission_required
 
 # ====== Book and Library Views ======
 
