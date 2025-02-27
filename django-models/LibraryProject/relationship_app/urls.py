@@ -3,7 +3,7 @@ from django.contrib.auth.views import LoginView, LogoutView
 from .views import (
     register_view, list_books, LibraryDetailView,
     admin_view, librarian_view, member_view,
-    add_book, edit_book, delete_book
+    add_book, edit_book, delete_book  # Import the views
 )
 
 urlpatterns = [

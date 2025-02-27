@@ -1,11 +1,10 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.views.generic.detail import DetailView
-from django.contrib.auth.decorators import login_required, user_passes_test, permission_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib import messages
 from .models import Book, Library, UserProfile
-from django.contrib.auth.decorators import permission_required
 
 # ====== Book and Library Views ======
 
@@ -30,7 +29,7 @@ def add_book(request):
         author_id = request.POST.get("author_id")
 
         if title and author_id:
-            book = Book.objects.create(title=title, author_id=author_id)
+            Book.objects.create(title=title, author_id=author_id)
             messages.success(request, "Book added successfully!")
             return redirect("list_books")
 
@@ -39,7 +38,7 @@ def add_book(request):
 
 @permission_required("relationship_app.can_change_book", raise_exception=True)
 def edit_book(request, book_id):
-    book = Book.objects.get(id=book_id)
+    book = get_object_or_404(Book, id=book_id)
 
     if request.method == "POST":
         book.title = request.POST.get("title", book.title)
@@ -52,7 +51,8 @@ def edit_book(request, book_id):
 
 @permission_required("relationship_app.can_delete_book", raise_exception=True)
 def delete_book(request, book_id):
-    book = Book.objects.get(id=book_id)
+    book = get_object_or_404(Book, id=book_id)
+
     if request.method == "POST":
         book.delete()
         messages.success(request, "Book deleted successfully!")
