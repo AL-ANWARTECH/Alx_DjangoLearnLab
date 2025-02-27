@@ -1,6 +1,7 @@
 from django.shortcuts import render  # type: ignore
 from django.views.generic import DetailView  # type: ignore
 from .models import Book, Library
+from .models import Library
 
 # Function-based view to list all books
 
