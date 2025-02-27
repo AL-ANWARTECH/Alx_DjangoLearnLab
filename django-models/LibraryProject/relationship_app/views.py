@@ -3,6 +3,8 @@ from django.views.generic import DetailView  # type: ignore
 from .models import Book, Library
 from .models import Library
 from django.views.generic.detail import DetailView  # type: ignore
+from django.conf import settings  # type: ignore
+print(settings.TEMPLATES[0]['DIRS'])
 
 # Function-based view to list all books
 
