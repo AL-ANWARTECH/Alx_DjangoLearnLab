@@ -4,7 +4,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.views.generic.detail import DetailView
 from .models import Book, Library  # Combined model imports
-
+from django.contrib.auth.forms import UserCreationForm
 # Function-Based View for Listing all Books
 
 
