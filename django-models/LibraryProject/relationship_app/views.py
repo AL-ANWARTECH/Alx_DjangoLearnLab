@@ -11,16 +11,17 @@ from .models import Book, Library, UserProfile
 
 def list_books(request):
     books = Book.objects.all()
-    return render(request, 'relationship_app/list_books.html', {'books': books})
+    return render(request, "relationship_app/list_books.html", {"books": books})
 
 
 class LibraryDetailView(DetailView):
     model = Library
-    template_name = 'relationship_app/library_detail.html'
-    context_object_name = 'library'
+    template_name = "relationship_app/library_detail.html"
+    context_object_name = "library"
 
 
 # ====== Authentication Views ======
+
 
 def login_view(request):
     if request.method == "POST":
@@ -53,35 +54,34 @@ def register_view(request):
 
 # ====== Role-Based Access Control ======
 
+
 def has_role(user, role):
     """Check if the user has the given role."""
-    return user.is_authenticated and hasattr(user, 'userprofile') and user.userprofile.role == role
+    return user.is_authenticated and hasattr(user, "userprofile") and user.userprofile.role == role
 
 
 def role_check(role):
-    """Decorator function for checking user roles."""
+    """Returns a function to check if a user has a specific role."""
+
     def check(user):
-        if not has_role(user, role):
-            messages.error(
-                user, f"You do not have permission to access the {role} dashboard.")
-            return False
-        return True
+        return has_role(user, role)
+
     return check
 
 
-@login_required
+@login_required(login_url="login")
 @user_passes_test(role_check("Admin"), login_url="login")
 def admin_view(request):
     return render(request, "relationship_app/admin_view.html")
 
 
-@login_required
+@login_required(login_url="login")
 @user_passes_test(role_check("Librarian"), login_url="login")
 def librarian_view(request):
     return render(request, "relationship_app/librarian_view.html")
 
 
-@login_required
-@user_passes_test(lambda user: role_check(user, "Member"), login_url="login")
+@login_required(login_url="login")
+@user_passes_test(role_check("Member"), login_url="login")
 def member_view(request):
     return render(request, "relationship_app/member_view.html")
