@@ -13,6 +13,6 @@ def list_books(request):
 
 
 class LibraryDetailView(DetailView):
-    model = Library
-    template_name = 'relationship_app/library_detail.html'  # ✅ Uses template for details
-    context_object_name = 'library'  # ✅ Allows template to use {{ library }}
+    model = Library  # ✅ Specifies the model
+    template_name = 'relationship_app/library_detail.html'  # ✅ Uses the correct template
+    context_object_name = 'library'
