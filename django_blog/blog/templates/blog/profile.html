@@ -2,4 +2,15 @@
 {% block content %}
 <h2>Profile</h2>
 <p>Welcome, {{ user.username }}</p>
+<p>Email: {{ user.email }}</p>
+
+{% if user.profile.image %}
+    <img src="{{ user.profile.image.url }}" alt="Profile Picture" width="150">
+{% endif %}
+
+{% if user.profile.bio %}
+    <p>Bio: {{ user.profile.bio }}</p>
+{% endif %}
+
+<a href="{% url 'profile_update' %}">Edit Profile</a>
 {% endblock %}

@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
+from .models import Profile, Post
 
 # User Registration Form (Extends UserCreationForm)
 class UserRegisterForm(UserCreationForm):
@@ -20,10 +21,15 @@ class UserUpdateForm(forms.ModelForm):
         fields = ['username', 'email']
 
 
-# Profile Picture Update Form (Optional)
-from .models import Profile  # Import your Profile model
-
+# Profile Picture Update Form
 class ProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ['image']  # Add other fields like 'bio' if needed
+        fields = ['image', 'bio']  # Includes 'bio' for a more personalized profile
+
+
+# Post Form (For Creating & Updating Posts)
+class PostForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = ['title', 'content']
