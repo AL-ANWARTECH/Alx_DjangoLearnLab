@@ -19,9 +19,9 @@ urlpatterns = [
     path('post/<int:pk>/delete/', PostDeleteView.as_view(), name='post-delete'),
 
     # Comment URLs
-    path('post/<int:post_id>/comment/', add_comment, name='add-comment'),
-    path('comment/<int:comment_id>/update/', update_comment, name='update-comment'),
-    path('comment/<int:comment_id>/delete/', delete_comment, name='delete-comment'),
+    path('post/<int:pk>/comments/new/', add_comment, name='add-comment'),  # ✅ Add new comment
+    path('comment/<int:pk>/update/', update_comment, name='update-comment'),  # ✅ Update comment
+    path('comment/<int:pk>/delete/', delete_comment, name='delete-comment'),  # ✅ Delete comment
 
     # Authentication URLs
     path('register/', views.register, name='register'),
