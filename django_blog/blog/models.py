@@ -1,12 +1,23 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+# Tag model
+class Tag(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+
+    class Meta:
+        verbose_name_plural = "Tags"
+
+    def __str__(self):
+        return self.name
+
 # Post model
 class Post(models.Model):
     title = models.CharField(max_length=200)
     content = models.TextField()
     published_date = models.DateTimeField(auto_now_add=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts")
+    tags = models.ManyToManyField(Tag, related_name="posts", blank=True)
 
     class Meta:
         ordering = ['-published_date']  # Show latest posts first
@@ -14,7 +25,6 @@ class Post(models.Model):
 
     def __str__(self):
         return f"{self.title} by {self.author.username}"
-
 
 # Profile model
 class Profile(models.Model):
@@ -24,7 +34,6 @@ class Profile(models.Model):
 
     def __str__(self):
         return f'{self.user.username} Profile'
-
 
 # Comment model
 class Comment(models.Model):

@@ -4,7 +4,8 @@ from . import views
 from .views import (
     PostListView, PostDetailView, PostCreateView, 
     PostUpdateView, PostDeleteView, add_comment, 
-    update_comment, delete_comment
+    update_comment, delete_comment, 
+    PostSearchView, TagDetailView
 )
 
 urlpatterns = [
@@ -31,4 +32,10 @@ urlpatterns = [
     # User Profile Management
     path('profile/', views.profile, name='profile'),
     path('profile/update/', views.profile_update, name='profile-update'),
+
+    # Tag URLs
+    path('tag/<str:tag_name>/', TagDetailView.as_view(), name='tag-detail'),  # Tag detail page
+
+    # Search URLs
+    path('search/', PostSearchView.as_view(), name='post-search'),  # Search functionality
 ]

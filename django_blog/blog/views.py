@@ -3,7 +3,8 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from .models import Post, Comment
+from django.db.models import Q  # Import Q for complex queries
+from .models import Post, Comment, Tag
 from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm, PostForm, CommentForm
 
 # Home View
@@ -58,6 +59,17 @@ class PostListView(ListView):
     template_name = 'blog/posts.html'  
     context_object_name = 'posts'
     ordering = ['-published_date']  # Newest posts first
+
+    def get_queryset(self):
+        query = self.request.GET.get('q')
+        if query:
+            return Post.objects.filter(
+                Q(title__icontains=query) |
+                Q(content__icontains=query) |
+                Q(tags__name__icontains=query)  # Search for tags too
+            ).distinct()
+        return Post.objects.all()
+
 
 # Detail View - Displays a single post with comments
 class PostDetailView(DetailView):
@@ -142,3 +154,23 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     
     def get_success_url(self):
         return self.object.post.get_absolute_url()
+
+
+### Tagging and Search Views ###
+
+# View for displaying posts by tag
+def posts_by_tag(request, tag_name):
+    tag = get_object_or_404(Tag, name=tag_name)
+    posts = Post.objects.filter(tags=tag)
+    return render(request, 'blog/posts_by_tag.html', {'posts': posts, 'tag': tag})
+
+
+# View for handling search queries
+def search_posts(request):
+    query = request.GET.get('q')
+    posts = Post.objects.filter(
+        Q(title__icontains=query) |
+        Q(content__icontains=query) |
+        Q(tags__name__icontains=query)
+    ).distinct()
+    return render(request, 'blog/search_results.html', {'posts': posts, 'query': query})
