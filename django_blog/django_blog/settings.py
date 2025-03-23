@@ -129,3 +129,9 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Loggin authentication redirects
+
+LOGIN_REDIRECT_URL = 'profile'  # Redirects to the profile page after login
+LOGOUT_REDIRECT_URL = 'login'   # Redirects to the login page after logout
+
