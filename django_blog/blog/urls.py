@@ -1,4 +1,3 @@
-# urls.py (Fix)
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views
@@ -6,7 +5,7 @@ from .views import (
     PostListView, PostDetailView, PostCreateView, 
     PostUpdateView, PostDeleteView, 
     CommentCreateView, CommentUpdateView, CommentDeleteView,
-    PostSearchView, posts_by_tag  # ✅ Remove PostByTagListView
+    PostSearchView, PostByTagListView  # ✅ Ensure this is imported
 )
 
 urlpatterns = [
@@ -17,8 +16,8 @@ urlpatterns = [
     path('post/<int:pk>/update/', PostUpdateView.as_view(), name='post-update'),
     path('post/<int:pk>/delete/', PostDeleteView.as_view(), name='post-delete'),
 
-    # Tag URLs (Fix applied)
-    path('tags/<slug:tag_slug>/', posts_by_tag, name='posts-by-tag'),  # ✅ Use function-based view
+    # Tag URLs (✅ Corrected to use PostByTagListView)
+    path('tags/<slug:tag_slug>/', PostByTagListView.as_view(), name='posts-by-tag'),
 
     # Comment URLs
     path('post/<int:post_id>/comment/new/', CommentCreateView.as_view(), name='add-comment'),
