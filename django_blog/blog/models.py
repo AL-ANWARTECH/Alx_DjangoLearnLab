@@ -1,6 +1,13 @@
 from django.db import models
 from django.contrib.auth.models import User
-from taggit.managers import TaggableManager  # ✅ Import TaggableManager
+from taggit.managers import TaggableManager  # If using django-taggit
+
+# Tag model
+class Tag(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.name
 
 # Post model
 class Post(models.Model):
@@ -8,10 +15,10 @@ class Post(models.Model):
     content = models.TextField()
     published_date = models.DateTimeField(auto_now_add=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts")
-    tags = TaggableManager()  # ✅ Replace ManyToManyField with TaggableManager
+    tags = TaggableManager()  # Tags for categorizing posts
 
     class Meta:
-        ordering = ['-published_date']  # Show latest posts first
+        ordering = ['-published_date']
         verbose_name_plural = "Posts"
 
     def __str__(self):
@@ -35,7 +42,7 @@ class Comment(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['created_at']  # Show oldest comments first
+        ordering = ['created_at']
         verbose_name_plural = "Comments"
 
     def __str__(self):

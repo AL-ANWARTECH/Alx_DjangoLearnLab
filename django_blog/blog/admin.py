@@ -1,5 +1,7 @@
 from django.contrib import admin
-from taggit.models import Tag
+from .models import Post, Profile, Comment  # Import your models
 
-# Register your models here.
-admin.site.register(Tag)
+# Register your models
+admin.site.register(Post)
+admin.site.register(Profile)
+admin.site.register(Comment)

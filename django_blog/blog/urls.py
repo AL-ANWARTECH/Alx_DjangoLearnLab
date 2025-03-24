@@ -1,6 +1,6 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
-from . import views
+from . import views  # Keep for function-based views
 from .views import (
     PostListView, PostDetailView, PostCreateView, 
     PostUpdateView, PostDeleteView, 
@@ -19,10 +19,10 @@ urlpatterns = [
     path('post/<int:pk>/update/', PostUpdateView.as_view(), name='post-update'),
     path('post/<int:pk>/delete/', PostDeleteView.as_view(), name='post-delete'),
 
-    # Comment URLs (Class-Based Views)
-    path('post/<int:post_id>/comments/new/', CommentCreateView.as_view(), name='add-comment'),  # ✅ Add new comment
-    path('comment/<int:pk>/update/', CommentUpdateView.as_view(), name='update-comment'),  # ✅ Update comment
-    path('comment/<int:pk>/delete/', CommentDeleteView.as_view(), name='delete-comment'),  # ✅ Delete comment
+    # Comment URLs (CRUD Operations)
+    path('post/<int:post_id>/comments/new/', CommentCreateView.as_view(), name='add-comment'),
+    path('comment/<int:pk>/update/', CommentUpdateView.as_view(), name='update-comment'),
+    path('comment/<int:pk>/delete/', CommentDeleteView.as_view(), name='delete-comment'),
 
     # Authentication URLs
     path('register/', views.register, name='register'),
@@ -34,8 +34,8 @@ urlpatterns = [
     path('profile/update/', views.profile_update, name='profile-update'),
 
     # Tag URLs
-    path('tag/<str:tag_name>/', TagDetailView.as_view(), name='tag-detail'),  # Tag detail page
+    path('tag/<str:tag_name>/', TagDetailView.as_view(), name='tag-detail'),
 
     # Search URLs
-    path('search/', PostSearchView.as_view(), name='post-search'),  # Search functionality
+    path('search/', PostSearchView.as_view(), name='post-search'),
 ]

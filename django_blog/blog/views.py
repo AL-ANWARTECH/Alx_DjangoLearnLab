@@ -50,7 +50,6 @@ def profile_update(request):
     context = {'u_form': u_form, 'p_form': p_form}
     return render(request, 'blog/profile_update.html', context)
 
-
 ### Blog Post CRUD Views ###
 
 # List View - Displays all blog posts
@@ -70,6 +69,21 @@ class PostListView(ListView):
             ).distinct()
         return Post.objects.all()
 
+# Search View - Handles search queries
+class PostSearchView(ListView):
+    model = Post
+    template_name = 'blog/search_results.html'
+    context_object_name = 'posts'
+
+    def get_queryset(self):
+        query = self.request.GET.get('q')
+        if query:
+            return Post.objects.filter(
+                Q(title__icontains=query) |
+                Q(content__icontains=query) |
+                Q(tags__name__icontains=query)
+            ).distinct()
+        return Post.objects.none()
 
 # Detail View - Displays a single post with comments
 class PostDetailView(DetailView):
@@ -116,7 +130,6 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         post = self.get_object()
         return self.request.user == post.author
 
-
 ### Comment Views ###
 
 class CommentCreateView(LoginRequiredMixin, CreateView):
@@ -155,39 +168,13 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def get_success_url(self):
         return self.object.post.get_absolute_url()
 
-
-# Function-based add_comment view
-@login_required
-def add_comment(request, post_id):
-    post = get_object_or_404(Post, pk=post_id)
-    if request.method == "POST":
-        form = CommentForm(request.POST)
-        if form.is_valid():
-            comment = form.save(commit=False)
-            comment.post = post
-            comment.author = request.user
-            comment.save()
-            return redirect(post.get_absolute_url())
-    else:
-        form = CommentForm()
-    return render(request, 'blog/add_comment.html', {'form': form, 'post': post})
-
-
-### Tagging and Search Views ###
-
 # View for displaying posts by tag
 def posts_by_tag(request, tag_name):
     tag = get_object_or_404(Tag, name=tag_name)
     posts = Post.objects.filter(tags=tag)
     return render(request, 'blog/posts_by_tag.html', {'posts': posts, 'tag': tag})
 
-
-# View for handling search queries
-def search_posts(request):
-    query = request.GET.get('q')
-    posts = Post.objects.filter(
-        Q(title__icontains=query) |
-        Q(content__icontains=query) |
-        Q(tags__name__icontains=query)
-    ).distinct()
-    return render(request, 'blog/search_results.html', {'posts': posts, 'query': query})
+# Detail View for Tags
+class TagDetailView(DetailView):
+    model = Tag
+    template_name = 'blog/tag_detail.html'
