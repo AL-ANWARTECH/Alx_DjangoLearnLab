@@ -1,3 +1,4 @@
+# urls.py (Fix)
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views
@@ -5,7 +6,7 @@ from .views import (
     PostListView, PostDetailView, PostCreateView, 
     PostUpdateView, PostDeleteView, 
     CommentCreateView, CommentUpdateView, CommentDeleteView,
-    PostSearchView, posts_by_tag
+    PostSearchView, posts_by_tag  # ✅ Remove PostByTagListView
 )
 
 urlpatterns = [
@@ -16,8 +17,8 @@ urlpatterns = [
     path('post/<int:pk>/update/', PostUpdateView.as_view(), name='post-update'),
     path('post/<int:pk>/delete/', PostDeleteView.as_view(), name='post-delete'),
 
-    # Tag URLs
-    path('tags/<slug:tag_slug>/', posts_by_tag, name='posts-by-tag'),
+    # Tag URLs (Fix applied)
+    path('tags/<slug:tag_slug>/', posts_by_tag, name='posts-by-tag'),  # ✅ Use function-based view
 
     # Comment URLs
     path('post/<int:post_id>/comment/new/', CommentCreateView.as_view(), name='add-comment'),
@@ -34,6 +35,5 @@ urlpatterns = [
     path('profile/update/', views.profile_update, name='profile-update'),
 
     # Search URLs
-    path('search/', PostSearchView.as_view(), name='search'),  # Added exactly as requested
-    path('post-search/', PostSearchView.as_view(), name='post-search'),  # Kept your existing if needed
+    path('search/', PostSearchView.as_view(), name='search'),
 ]
