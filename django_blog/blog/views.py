@@ -3,7 +3,7 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from django.db.models import Q  # Import Q for complex queries
+from django.db.models import Q
 from .models import Post, Comment, Tag
 from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm, PostForm, CommentForm
 
@@ -52,28 +52,12 @@ def profile_update(request):
 
 ### Blog Post CRUD Views ###
 
-# List View - Displays all blog posts
 class PostListView(ListView):
     model = Post
     template_name = 'blog/posts.html'  
     context_object_name = 'posts'
-    ordering = ['-published_date']  # Newest posts first
-
-    def get_queryset(self):
-        query = self.request.GET.get('q')
-        if query:
-            return Post.objects.filter(
-                Q(title__icontains=query) |
-                Q(content__icontains=query) |
-                Q(tags__name__icontains=query)  # Search for tags too
-            ).distinct()
-        return Post.objects.all()
-
-# Search View - Handles search queries
-class PostSearchView(ListView):
-    model = Post
-    template_name = 'blog/search_results.html'
-    context_object_name = 'posts'
+    ordering = ['-published_date']
+    paginate_by = 5
 
     def get_queryset(self):
         query = self.request.GET.get('q')
@@ -82,21 +66,42 @@ class PostSearchView(ListView):
                 Q(title__icontains=query) |
                 Q(content__icontains=query) |
                 Q(tags__name__icontains=query)
-            ).distinct()
+            ).distinct().order_by('-published_date')
+        return Post.objects.all().order_by('-published_date')
+
+class PostSearchView(ListView):
+    model = Post
+    template_name = 'blog/search_results.html'
+    context_object_name = 'posts'
+    paginate_by = 5
+
+    def get_queryset(self):
+        query = self.request.GET.get('q')
+        if query:
+            return Post.objects.filter(
+                Q(title__icontains=query) |
+                Q(content__icontains=query) |
+                Q(tags__name__icontains=query) |
+                Q(author__username__icontains=query)
+            ).distinct().order_by('-published_date')
         return Post.objects.none()
 
-# Detail View - Displays a single post with comments
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['query'] = self.request.GET.get('q')
+        return context
+
 class PostDetailView(DetailView):
     model = Post
     template_name = 'blog/post_detail.html'  
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['comments'] = self.object.comments.all()  # Fetch post comments
+        context['comments'] = self.object.comments.all()
         context['comment_form'] = CommentForm()
+        context['similar_posts'] = self.object.tags.similar_objects()[:4]
         return context
 
-# Create View - Allows authenticated users to create posts
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
     form_class = PostForm
@@ -106,7 +111,6 @@ class PostCreateView(LoginRequiredMixin, CreateView):
         form.instance.author = self.request.user
         return super().form_valid(form)
 
-# Update View - Allows authors to edit their own posts
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Post
     form_class = PostForm
@@ -120,11 +124,10 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         post = self.get_object()
         return self.request.user == post.author
 
-# Delete View - Allows authors to delete their own posts
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post
     template_name = 'blog/post_confirm_delete.html'  
-    success_url = '/'  # Redirect to home after deletion
+    success_url = '/'
 
     def test_func(self):
         post = self.get_object()
@@ -168,13 +171,23 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def get_success_url(self):
         return self.object.post.get_absolute_url()
 
-# View for displaying posts by tag
-def posts_by_tag(request, tag_name):
-    tag = get_object_or_404(Tag, name=tag_name)
-    posts = Post.objects.filter(tags=tag)
-    return render(request, 'blog/posts_by_tag.html', {'posts': posts, 'tag': tag})
+### Tag Views ###
 
-# Detail View for Tags
+def posts_by_tag(request, tag_slug):
+    tag = get_object_or_404(Tag, slug=tag_slug)
+    posts = Post.objects.filter(tags=tag).order_by('-published_date')
+    context = {
+        'tag': tag,
+        'posts': posts,
+    }
+    return render(request, 'blog/posts_by_tag.html', context)
+
 class TagDetailView(DetailView):
     model = Tag
     template_name = 'blog/tag_detail.html'
+    context_object_name = 'tag'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['posts'] = Post.objects.filter(tags=self.object).order_by('-published_date')
+        return context
