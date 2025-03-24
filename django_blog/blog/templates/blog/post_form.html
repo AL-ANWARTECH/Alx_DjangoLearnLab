@@ -3,7 +3,18 @@
 <h2>{% if form.instance.pk %}Edit Post{% else %}New Post{% endif %}</h2>
 <form method="POST">
     {% csrf_token %}
-    {{ form.as_p }}
+    <div class="form-group">
+        {{ form.title.label_tag }}
+        {{ form.title }}
+    </div>
+    <div class="form-group">
+        {{ form.content.label_tag }}
+        {{ form.content }}
+    </div>
+    <div class="form-group">
+        {{ form.tags.label_tag }}
+        {{ form.tags }}
+    </div>
     <button type="submit">{% if form.instance.pk %}Update{% else %}Publish{% endif %}</button>
 </form>
 <a href="{% url 'posts' %}">Cancel</a>
