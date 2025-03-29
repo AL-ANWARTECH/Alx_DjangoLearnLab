@@ -1,10 +1,10 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from rest_framework import viewsets, generics, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Post, Comment
+from .models import Post, Like
 from accounts.models import User
 from .serializers import (
     PostSerializer,
@@ -12,6 +12,7 @@ from .serializers import (
     CommentSerializer,
     CommentCreateSerializer
 )
+from notifications.models import Notification
 from .permissions import IsAuthorOrReadOnly
 
 # ViewSet for Posts
@@ -34,14 +35,49 @@ class PostViewSet(viewsets.ModelViewSet):
         post = self.get_object()
         user = request.user
 
-        if post.likes.filter(id=user.id).exists():
-            post.likes.remove(user)
-            message = 'Post unliked'
-        else:
-            post.likes.add(user)
-            message = 'Post liked'
+        # Check if the user has already liked the post
+        if Like.objects.filter(user=user, post=post).exists():
+            return Response(
+                {'error': 'You have already liked this post'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-        return Response({'status': message})
+        # Create a like object
+        Like.objects.create(user=user, post=post)
+
+        # Create a notification if the author is not the liker
+        if post.author != user:
+            Notification.objects.create(
+                recipient=post.author,
+                actor=user,
+                verb='liked your post',
+                target=post
+            )
+
+        return Response({
+            'status': 'Post liked',
+            'likes_count': post.likes.count()
+        })
+
+    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    def unlike(self, request, pk=None):
+        post = self.get_object()
+        user = request.user
+
+        # Check if the user has liked the post
+        like = Like.objects.filter(user=user, post=post).first()
+        if not like:
+            return Response(
+                {'error': 'You have not liked this post'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Delete the like
+        like.delete()
+        return Response({
+            'status': 'Post unliked',
+            'likes_count': post.likes.count()
+        })
 
 # ViewSet for Comments
 class CommentViewSet(viewsets.ModelViewSet):
@@ -62,8 +98,6 @@ class CommentViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         post = Post.objects.get(pk=self.kwargs['post_pk'])
         serializer.save(author=self.request.user, post=post)
-
-Post.objects.filter(author__in=following_users).order_by
 
 # Feed View to Get Posts from Followed Users
 class FeedView(generics.ListAPIView):

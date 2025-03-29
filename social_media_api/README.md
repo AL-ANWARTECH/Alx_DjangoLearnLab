@@ -42,4 +42,22 @@ curl -X POST http://127.0.0.1:8000/api/posts/ \
 ```bash
 curl -X POST http://127.0.0.1:8000/api/auth/follow/2/ \
 -H "Authorization: Bearer <your_token>"
+## Likes API Endpoints
 
+- `POST /api/posts/<post_id>/like/`: Like a post (authenticated)
+- `POST /api/posts/<post_id>/unlike/`: Unlike a post (authenticated)
+
+## Notifications API Endpoints
+
+- `GET /api/notifications/`: List all notifications (authenticated)
+- `POST /api/notifications/<notification_id>/read/`: Mark notification as read (authenticated)
+- `POST /api/notifications/read-all/`: Mark all notifications as read (authenticated)
+
+### Example Responses
+
+**Like a post:**
+```json
+{
+    "status": "Post liked",
+    "likes_count": 5
+}

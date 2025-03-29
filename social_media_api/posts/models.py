@@ -21,6 +21,7 @@ class Post(models.Model):
     updated_at = models.DateTimeField(_('updated at'), auto_now=True)
     likes = models.ManyToManyField(
         User,
+        through='Like',
         related_name='liked_posts',
         blank=True,
         verbose_name=_('likes')
@@ -61,4 +62,26 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"Comment by {self.author.username} on {self.post.title}"
-models.TextField()
+
+class Like(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='likes',
+        verbose_name=_('user')
+    )
+    post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        related_name='post_likes',
+        verbose_name=_('post')
+    )
+    created_at = models.DateTimeField(_('created at'), auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'post')
+        verbose_name = _('like')
+        verbose_name_plural = _('likes')
+
+    def __str__(self):
+        return f"{self.user.username} likes {self.post.title}"
