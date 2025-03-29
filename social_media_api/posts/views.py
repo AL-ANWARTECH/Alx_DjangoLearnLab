@@ -1,7 +1,8 @@
 from django.shortcuts import render
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, generics, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Post, Comment
 from .serializers import (
@@ -12,6 +13,7 @@ from .serializers import (
 )
 from .permissions import IsAuthorOrReadOnly
 
+# ViewSet for Posts
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     filter_backends = [DjangoFilterBackend]
@@ -40,6 +42,7 @@ class PostViewSet(viewsets.ModelViewSet):
 
         return Response({'status': message})
 
+# ViewSet for Comments
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]
@@ -58,3 +61,17 @@ class CommentViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         post = Post.objects.get(pk=self.kwargs['post_pk'])
         serializer.save(author=self.request.user, post=post)
+
+# Feed View to Get Posts from Followed Users
+class FeedView(generics.ListAPIView):
+    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_class = None  # Or use your default pagination
+
+    def get_queryset(self):
+        # Get posts from users the current user is following and include own posts
+        following_users = self.request.user.following.all()
+        return Post.objects.filter(
+            Q(author__in=following_users) | 
+            Q(author=self.request.user)  # Include user's own posts
+        ).order_by('-created_at').select_related('author').prefetch_related('comments', 'likes')

@@ -23,4 +23,23 @@ curl -X POST http://127.0.0.1:8000/api/posts/ \
 -H "Authorization: Bearer <your_token>" \
 -H "Content-Type: application/json" \
 -d '{"title": "My First Post", "content": "This is my first post content"}'
+## Follow System API Endpoints
+
+- `POST /api/auth/follow/<user_id>/`: Follow a user (authenticated)
+- `POST /api/auth/unfollow/<user_id>/`: Unfollow a user (authenticated)
+- `GET /api/auth/following/`: List users you're following (authenticated)
+- `GET /api/auth/followers/`: List your followers (authenticated)
+
+## Feed Endpoint
+
+- `GET /api/feed/`: Get posts from users you follow (authenticated)
+  - Ordered by most recent first
+  - Includes your own posts
+
+### Example Requests
+
+**Follow a user:**
+```bash
+curl -X POST http://127.0.0.1:8000/api/auth/follow/2/ \
+-H "Authorization: Bearer <your_token>"
 
