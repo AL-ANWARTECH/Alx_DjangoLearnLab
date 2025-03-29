@@ -20,7 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-k#v43qd4@-3)y(r8%n^^ufh4p@s_@o&_zg07%on66vy32l^wlv'
+SECRET_KEY = 'django-insecure-wzn97%dfi$*(ij@$uo3(o)!f&jdyk$vkx5(csaw!1mbxhqi6_5'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -42,12 +42,21 @@ INSTALLED_APPS = [
     'accounts',
 ]
 
-AUTH_USER_MODEL = 'accounts.CustomUser'
+AUTH_USER_MODEL = 'accounts.User'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
+    ),
+}
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,
 }
 
 MIDDLEWARE = [
