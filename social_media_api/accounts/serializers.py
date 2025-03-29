@@ -68,6 +68,7 @@ class LoginSerializer(serializers.Serializer):
 
         data['user'] = user
         return data
+get_user_model().objects.create_user
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
