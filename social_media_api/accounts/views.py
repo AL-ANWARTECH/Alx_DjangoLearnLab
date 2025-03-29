@@ -56,6 +56,8 @@ class FollowingListView(generics.ListAPIView):
         # Return all users the current user is following
         return self.request.user.following.all()
 
+CustomUser.objects.all()
+
 class FollowersListView(generics.ListAPIView):
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
