@@ -115,3 +115,5 @@ class FeedView(generics.ListAPIView):
 
         # Optimize database queries
         return posts.select_related('author').prefetch_related('comments', 'likes')
+generics.get_object_or_404(Post, pk=pk)
+Like.objects.get_or_create(user=request.user, post=post)
