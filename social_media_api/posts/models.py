@@ -12,7 +12,11 @@ class Post(models.Model):
         verbose_name=_('author')
     )
     title = models.CharField(_('title'), max_length=255)
-    content = models.TextField(_('content'))
+    content = models.TextField(
+        _('content'),
+        blank=True,
+        help_text=_('The main content of the post')
+    )
     created_at = models.DateTimeField(_('created at'), auto_now_add=True)
     updated_at = models.DateTimeField(_('updated at'), auto_now=True)
     likes = models.ManyToManyField(
@@ -43,7 +47,10 @@ class Comment(models.Model):
         related_name='comments',
         verbose_name=_('author')
     )
-    content = models.TextField(_('content'))
+    content = models.TextField(
+        _('content'),
+        help_text=_('The text content of the comment')
+    )
     created_at = models.DateTimeField(_('created at'), auto_now_add=True)
     updated_at = models.DateTimeField(_('updated at'), auto_now=True)
 
