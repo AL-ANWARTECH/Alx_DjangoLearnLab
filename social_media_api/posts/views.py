@@ -1,3 +1,6 @@
+import pkgutil
+from tokenize import Comment
+from urllib import request
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, generics, permissions, status
 from rest_framework.decorators import action
@@ -17,7 +20,7 @@ from .permissions import IsAuthorOrReadOnly
 # ViewSet for Posts
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend] # type: ignore
     filterset_fields = ['author__username', 'title']
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]
 
@@ -115,5 +118,5 @@ class FeedView(generics.ListAPIView):
 
         # Optimize database queries
         return posts.select_related('author').prefetch_related('comments', 'likes')
-generics.get_object_or_404(Post, pk=pk)
-Like.objects.get_or_create(user=request.user, post=post)
+generics.get_object_or_404(Post, pk=pkgutil)
+Like.objects.get_or_create(user=request.user, post=Post)
