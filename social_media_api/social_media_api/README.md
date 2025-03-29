@@ -23,3 +23,13 @@
 - Add JWT authentication
 - Implement password reset
 - Add user search & follow feature
+# Social Media API
+
+This is a RESTful API built with Django and Django REST Framework that allows users to create, view, update, and delete posts and comments.
+
+## Features
+- User authentication (registration, login, token-based authentication)
+- Create, read, update, and delete (CRUD) operations for posts and comments
+- Pagination for large datasets
+- Filtering posts by title and content
+- Secure API with permissions
