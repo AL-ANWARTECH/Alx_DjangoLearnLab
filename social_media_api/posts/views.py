@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Post, Comment
+from accounts.models import User
 from .serializers import (
     PostSerializer,
     PostCreateSerializer,
@@ -69,9 +70,14 @@ class FeedView(generics.ListAPIView):
     pagination_class = None  # Or use your default pagination
 
     def get_queryset(self):
-        # Get posts from users the current user is following and include own posts
+        # Get the list of users the current user is following
         following_users = self.request.user.following.all()
-        return Post.objects.filter(
+
+        # Get posts from followed users and the current user, ordered by creation date
+        posts = Post.objects.filter(
             Q(author__in=following_users) | 
-            Q(author=self.request.user)  # Include user's own posts
-        ).order_by('-created_at').select_related('author').prefetch_related('comments', 'likes')
+            Q(author=self.request.user)
+        ).order_by('-created_at')
+
+        # Optimize database queries
+        return posts.select_related('author').prefetch_related('comments', 'likes')
