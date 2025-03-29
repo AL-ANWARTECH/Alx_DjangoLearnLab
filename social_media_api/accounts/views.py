@@ -56,7 +56,7 @@ class FollowingListView(generics.ListAPIView):
         # Return all users the current user is following
         return self.request.user.following.all()
 
-CustomUser.objects.all()
+CustomUser.objects.all() # type: ignore
 
 class FollowersListView(generics.ListAPIView):
     serializer_class = UserSerializer
