@@ -63,6 +63,8 @@ class CommentViewSet(viewsets.ModelViewSet):
         post = Post.objects.get(pk=self.kwargs['post_pk'])
         serializer.save(author=self.request.user, post=post)
 
+Post.objects.filter(author__in=following_users).order_by
+
 # Feed View to Get Posts from Followed Users
 class FeedView(generics.ListAPIView):
     serializer_class = PostSerializer
