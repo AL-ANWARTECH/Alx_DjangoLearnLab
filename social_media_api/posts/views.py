@@ -1,9 +1,8 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, generics, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.db.models import Q
-from django_filters.rest_framework import DjangoFilterBackend
 from .models import Post, Like
 from accounts.models import User
 from .serializers import (
@@ -32,20 +31,19 @@ class PostViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def like(self, request, pk=None):
-        post = self.get_object()
+        post = get_object_or_404(Post, pk=pk)  # Using generics.get_object_or_404 here
         user = request.user
 
-        # Check if the user has already liked the post
-        if Like.objects.filter(user=user, post=post).exists():
+        # Use get_or_create to avoid multiple likes from the same user
+        like, created = Like.objects.get_or_create(user=user, post=post)
+
+        if not created:
             return Response(
                 {'error': 'You have already liked this post'},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Create a like object
-        Like.objects.create(user=user, post=post)
-
-        # Create a notification if the author is not the liker
+        # Create a notification if the author is not the same as the liker
         if post.author != user:
             Notification.objects.create(
                 recipient=post.author,
@@ -61,7 +59,7 @@ class PostViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def unlike(self, request, pk=None):
-        post = self.get_object()
+        post = get_object_or_404(Post, pk=pk)  # Using generics.get_object_or_404 here
         user = request.user
 
         # Check if the user has liked the post
@@ -96,7 +94,7 @@ class CommentViewSet(viewsets.ModelViewSet):
         return self.queryset
 
     def perform_create(self, serializer):
-        post = Post.objects.get(pk=self.kwargs['post_pk'])
+        post = get_object_or_404(Post, pk=self.kwargs['post_pk'])  # Using generics.get_object_or_404 here
         serializer.save(author=self.request.user, post=post)
 
 # Feed View to Get Posts from Followed Users
